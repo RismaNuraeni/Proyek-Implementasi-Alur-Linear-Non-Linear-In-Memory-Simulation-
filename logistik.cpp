@@ -39,16 +39,17 @@ struct HistoriResi {
 
     // Insert di tail — O(1) karena menyimpan pointer tail
     void tambahLog(const string& kota, const string& status) {
-        time_t now = time(nullptr);
+        time_t now = time(nullptr);    // ambil waktu sekarang
         char buf[20];
         strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", localtime(&now));
 
+        // Buat node baru untuk log
         LogNode* node = new LogNode(kota, string(buf), status);
         if (tail == nullptr) {
-            head = tail = node;
+            head = tail = node;   // list kosong
         } else {
-            tail->next = node;
-            tail = node;
+            tail->next = node;   // sambungkan node baru di belakang
+            tail = node;    // perbarui tail
         }
         jumlahLog++;
     }
@@ -83,15 +84,15 @@ struct HistoriResi {
 // ============================================================
 
 struct Paket {
-    string noResi;
-    string kotaAsal;
-    string kotaTujuan;
-    string kotaSekarang;
-    string pengirim;
-    string penerima;
-    bool sudahSampai;
-    HistoriResi* histori;
-    Paket* nextInQueue;
+    string noResi;      // Nomor resi unik (format: LOG-XXXX)
+    string kotaAsal;    // Kota asal pengiriman
+    string kotaTujuan;  // Kota tujuan pengiriman
+    string kotaSekarang; // Kota saat ini (posisi paket)
+    string pengirim;    // Nama pengirim
+    string penerima;    // Nama penerima
+    bool sudahSampai;   // Status: sudah sampai atau belum
+    HistoriResi* histori;  // Pointer ke Linked List histori milik paket ini
+    Paket* nextInQueue;    // Pointer untuk merantai paket dalam Queue
 
     Paket(const string& resi, const string& asal, const string& tujuan,
           const string& pen, const string& per)
@@ -109,11 +110,11 @@ struct Paket {
 // ============================================================
 
 struct HubQueue {
-    string namaKota;
-    Paket* head;
-    Paket* tail;
-    int jumlah;
-    HubQueue* nextHub;
+    string namaKota; // Identitas kota
+    Paket* head;    // pointer ke paket pertama dalam antrean
+    Paket* tail;    // pointer ke paket terakhir dalam antrean
+    int jumlah;     // jumlah paket dalam antrean
+    HubQueue* nextHub;   // pointer ke Hub berikutnya
 
     HubQueue(const string& nama)
         : namaKota(nama), head(nullptr), tail(nullptr), jumlah(0), nextHub(nullptr) {}
@@ -122,9 +123,12 @@ struct HubQueue {
     void enqueue(Paket* p) {
         p->nextInQueue = nullptr;
         if (tail == nullptr) {
+            // kasus antrean kosong : head dan tail menunjuk ke paket yang sama
             head = tail = p;
         } else {
+            // kasus antrean tidak kosong : tambahkan di belakang
             tail->nextInQueue = p;
+            // perbarui tail untuk menunjuk ke paket baru
             tail = p;
         }
         jumlah++;
@@ -132,11 +136,11 @@ struct HubQueue {
 
     // Dequeue dari depan — O(1)
     Paket* dequeue() {
-        if (head == nullptr) return nullptr;
-        Paket* p = head;
-        head = head->nextInQueue;
-        if (head == nullptr) tail = nullptr;
-        p->nextInQueue = nullptr;
+        if (head == nullptr) return nullptr;   // antrean kosong
+        Paket* p = head;    // simpan paket yang akan dikeluarkan
+        head = head->nextInQueue;  // perbarui head
+        if (head == nullptr) tail = nullptr;   // jika antrean kosong, reset tail
+        p->nextInQueue = nullptr;    // putuskan hubungan paket yang dikeluarkan
         jumlah--;
         return p;
     }
@@ -149,18 +153,18 @@ struct HubQueue {
 // ============================================================
 
 struct EdgeNode {
-    string kotaTujuan;
-    int bobot;
-    EdgeNode* next;
+    string kotaTujuan;  // Kota tujuan dari edge
+    int bobot;          // Bobot (jarak) dari edge
+    EdgeNode* next;    // Pointer ke edge berikutnya
 
     EdgeNode(const string& tujuan, int b)
         : kotaTujuan(tujuan), bobot(b), next(nullptr) {}
 };
 
 struct VertexNode {
-    string namaKota;
-    EdgeNode* daftarTetangga;
-    VertexNode* next;
+    string namaKota;    // Nama kota
+    EdgeNode* daftarTetangga;   // Pointer ke daftar tetangga (edges)
+    VertexNode* next;   // Pointer ke vertex berikutnya dalam graf
 
     VertexNode(const string& nama)
         : namaKota(nama), daftarTetangga(nullptr), next(nullptr) {}
@@ -172,8 +176,8 @@ struct VertexNode {
 };
 
 struct Graf {
-    VertexNode* head;
-    int jumlahKota;
+    VertexNode* head;    // kepala linked list vertex
+    int jumlahKota;     // jumlah vertex dalam graf
 
     Graf() : head(nullptr), jumlahKota(0) {}
 
