@@ -44,7 +44,7 @@ struct HistoriResi {
         strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", localtime(&now));
 
         // Buat node baru untuk log
-        LogNode* node = new LogNode(kota, string(buf), status);
+        LogNode* node = new LogNode(kota, string(buf), status);   // alokasi hanya saat dibutuhkan
         if (tail == nullptr) {
             head = tail = node;   // list kosong
         } else {
@@ -354,10 +354,12 @@ struct Sistem {
 
     void lacakResi(const string& noResi) const {
         HubQueue* hub = daftarHub;
-        while (hub) {
+        // iterasi setiap hub
+        while (hub) {  // pencocokan string no resi
             Paket* cur = hub->head;
             while (cur) {
                 if (cur->noResi == noResi) {
+                    // Paket ditemukan — tampilkan data & traversal histori
                     cout << "\n  ┌─────────────────────────────────────┐\n";
                     cout << "  │         HASIL LACAK RESI             │\n";
                     cout << "  └─────────────────────────────────────┘\n";
